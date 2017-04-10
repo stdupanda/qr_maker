@@ -40,6 +40,11 @@ import cn.xz.qrmaker.dao.SQLIteUtil;
 import cn.xz.qrmaker.entity.UrlLog;
 import cn.xz.qrmaker.util.ZXingUtil;
 
+/**
+ * 主窗口，swing 入口
+ * @author gsx
+ *
+ */
 public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = -5070447543337995239L;
