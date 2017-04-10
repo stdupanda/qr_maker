@@ -5,8 +5,6 @@ import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -54,6 +52,7 @@ public class MainWindow extends JFrame {
 
 	private JPanel contentPane;
 	private MyImagePanel imagePanel;
+	private JTextArea textArea;
 	private JLabel label_url;
 
 	private int qrWidth = 240;
@@ -89,6 +88,7 @@ public class MainWindow extends JFrame {
 					SQLIteUtil.initDB(dbName);
 					// System.out.println(SQLIteUtil.getCount());
 					frame.resetCombo();
+					frame.firstInitImagePanel();
 
 					frame.ifInit = true;
 				} catch (Exception e) {
@@ -121,7 +121,7 @@ public class MainWindow extends JFrame {
 		label.setBounds(10, 90, 94, 15);
 		contentPane.add(label);
 
-		final JTextArea textArea = new JTextArea();
+		textArea = new JTextArea();
 		textArea.setWrapStyleWord(true);// 换行不断字
 		textArea.setLineWrap(true);// 换行
 		// textArea.setBounds(136, 10, 349, 60);
@@ -149,11 +149,6 @@ public class MainWindow extends JFrame {
 
 		JButton button = new JButton("生成");
 		button.setFocusPainted(false);// do not show black line
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				logger.info("{}", getClass());
-			}
-		});
 		button.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -167,9 +162,9 @@ public class MainWindow extends JFrame {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
+
 				String url = textArea.getText();
-				if(null == url || "".equals(url.trim())){
+				if (null == url || "".equals(url.trim())) {
 					logger.debug("内容为空");
 					return;
 				}
@@ -210,6 +205,7 @@ public class MainWindow extends JFrame {
 		comboBox = new JComboBox<UrlLog>();
 		comboBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
+				logger.debug("{}", e.getStateChange());
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					if (ifInit) {
 						String item = ((UrlLog) comboBox.getSelectedItem()).getUrl();
@@ -228,11 +224,12 @@ public class MainWindow extends JFrame {
 		comboBox.setBounds(114, 87, 349, 21);
 		contentPane.add(comboBox);
 
-		Image image = ZXingUtil.getImage("http://www.baidu.com", qrWidth, qrheight, 0);
-		imagePanel = new MyImagePanel(image);
-		imagePanel.setBounds(10, 118, qrWidth, qrheight);
-
-		contentPane.add(imagePanel);
+		// Image image = ZXingUtil.getImage("http://www.baidu.com", qrWidth,
+		// qrheight, 0);
+		// imagePanel = new MyImagePanel(image);
+		// imagePanel = new MyImagePanel(null);
+		// imagePanel.setBounds(10, 118, qrWidth, qrheight);
+		// contentPane.add(imagePanel);
 
 		JLabel label_clear_log = new JLabel("清除记录");
 		label_clear_log.addMouseListener(new MouseAdapter() {
@@ -277,9 +274,9 @@ public class MainWindow extends JFrame {
 	 * @param url
 	 * @throws WriterException
 	 */
-	private void setImage(String url) {
+	private void setImage(final String url) {// jdk1.8 下可以不显式声明final
 		new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				Image image = null;
@@ -289,12 +286,17 @@ public class MainWindow extends JFrame {
 					toast("生成二维码异常！" + e.getMessage());
 					e.printStackTrace();
 				}
-				contentPane.remove(imagePanel);
+				if (null != imagePanel) {
+					contentPane.remove(imagePanel);
+				}
 				imagePanel = new MyImagePanel(image);
 				imagePanel.setBounds(10, 118, qrWidth, qrheight);
+				imagePanel.setToolTipText(url);
 				contentPane.add(imagePanel);
 				contentPane.repaint();
 				label_url.setText("  " + url);
+				label_url.setToolTipText(url);
+				textArea.setText(url);
 			}
 		}).start();
 	}
@@ -304,7 +306,8 @@ public class MainWindow extends JFrame {
 
 		List<UrlLog> ret = SQLIteUtil.listAll();
 		if (1 > ret.size()) {
-			comboBox.addItem(new UrlLog(-1, "暂无"));
+			// comboBox.addItem(new UrlLog(-1, "暂无"));
+			comboBox.setSelectedIndex(-1);
 		} else {
 			for (UrlLog urlLog : ret) {
 				comboBox.addItem(urlLog);
@@ -319,7 +322,7 @@ public class MainWindow extends JFrame {
 	 */
 	private void toast(String msg) {
 		JOptionPane op = new JOptionPane(msg, JOptionPane.INFORMATION_MESSAGE);
-		final JDialog dialog = op.createDialog(getParent(), "");
+		final JDialog dialog = op.createDialog(getParent(), "提示");
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setAlwaysOnTop(true);
 		dialog.setModal(false);
@@ -332,5 +335,15 @@ public class MainWindow extends JFrame {
 				dialog.dispose();
 			}
 		}, 1000);
+	}
+
+	/**
+	 * window 初始化后默认加载第一个下拉框内容
+	 */
+	private void firstInitImagePanel() {
+		UrlLog item = comboBox.getItemAt(0);
+		if (null != item && !"".equals(item.getUrl()) && !"暂无".equals(item.getUrl())) {
+			setImage(item.getUrl());
+		}
 	}
 }
