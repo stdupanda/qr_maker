@@ -9,6 +9,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 /**
  * zxing 自定义工具类
@@ -31,6 +32,7 @@ public class ZXingUtil {
 		Map<EncodeHintType, Object> hints = new HashMap<EncodeHintType, Object>();
 		hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
 		hints.put(EncodeHintType.MARGIN, margin);
+		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
 		BitMatrix bitMatrix = multiFormatWriter.encode(url, BarcodeFormat.QR_CODE, width, height, hints);
 		return MatrixToImageWriter.toBufferedImage(bitMatrix);
 	}

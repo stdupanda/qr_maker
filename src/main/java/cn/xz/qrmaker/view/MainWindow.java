@@ -42,6 +42,7 @@ import cn.xz.qrmaker.util.ZXingUtil;
 
 /**
  * 主窗口，swing 入口
+ * 
  * @author gsx
  *
  */
@@ -80,8 +81,8 @@ public class MainWindow extends JFrame {
 			public void run() {
 				try {
 					MainWindow frame = new MainWindow();
-					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					// UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					frame.setVisible(true);
 					frame.setLocationRelativeTo(null);// make center of screen
 
@@ -147,9 +148,31 @@ public class MainWindow extends JFrame {
 		contentPane.add(scroll);
 
 		JButton button = new JButton("生成");
+		button.setFocusPainted(false);// do not show black line
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				logger.info("{}", getClass());
+			}
+		});
+		button.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
 				String url = textArea.getText();
+				if(null == url || "".equals(url.trim())){
+					logger.debug("内容为空");
+					return;
+				}
 				if (!url.startsWith("http")) {// 不是以 http 开头的网址格式
 					url = "http://" + url;
 					textArea.setText(url);
@@ -177,9 +200,6 @@ public class MainWindow extends JFrame {
 				} catch (SQLException e1) {
 					JOptionPane.showMessageDialog(getParent(), "插入历史记录失败！" + e1.getMessage());
 					e1.printStackTrace();
-				} catch (WriterException e1) {
-					JOptionPane.showMessageDialog(getParent(), "生成二维码失败！" + e1.getMessage());
-					e1.printStackTrace();
 				}
 			}
 		});
@@ -193,7 +213,11 @@ public class MainWindow extends JFrame {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					if (ifInit) {
 						String item = ((UrlLog) comboBox.getSelectedItem()).getUrl();
-						logger.info("当前选择的是：" + item);
+						logger.info("当前选择的是：{}", item);
+						if ("暂无".equals(item)) {
+							logger.info("不再设置输入框了");
+							return;
+						}
 						textArea.setText(item);
 						oldUrl = item;
 						justSelected = true;
@@ -253,14 +277,26 @@ public class MainWindow extends JFrame {
 	 * @param url
 	 * @throws WriterException
 	 */
-	private void setImage(String url) throws WriterException {
-		Image image = ZXingUtil.getImage(url, qrWidth, qrheight, 0);
-		contentPane.remove(imagePanel);
-		imagePanel = new MyImagePanel(image);
-		imagePanel.setBounds(32, 114, qrWidth, qrheight);
-		contentPane.add(imagePanel);
-		contentPane.repaint();
-		label_url.setText("  " + url);
+	private void setImage(String url) {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Image image = null;
+				try {
+					image = ZXingUtil.getImage(url, qrWidth, qrheight, 0);
+				} catch (WriterException e) {
+					toast("生成二维码异常！" + e.getMessage());
+					e.printStackTrace();
+				}
+				contentPane.remove(imagePanel);
+				imagePanel = new MyImagePanel(image);
+				imagePanel.setBounds(10, 118, qrWidth, qrheight);
+				contentPane.add(imagePanel);
+				contentPane.repaint();
+				label_url.setText("  " + url);
+			}
+		}).start();
 	}
 
 	private void resetCombo() throws SQLException {

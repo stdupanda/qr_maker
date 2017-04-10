@@ -1,5 +1,6 @@
 package cn.xz.qrmaker.dao;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,12 +16,15 @@ import org.slf4j.LoggerFactory;
 
 import cn.xz.qrmaker.config.Resources;
 import cn.xz.qrmaker.entity.UrlLog;
+import cn.xz.qrmaker.util.JarUtil;
 
 public class SQLIteUtil {
 	private static Logger logger = LoggerFactory.getLogger(SQLIteUtil.class);
 	
 	private static Connection conn;
-	private static String dbPath = SQLIteUtil.class.getResource("").getPath() + Resources.DB_NAME;
+//	private static String dbPath = SQLIteUtil.class.getResource("").getPath() + Resources.DB_NAME;
+	private static String dbPath = System.getProperty("user.home") + File.separator + "qrmaker" + File.separator + Resources.DB_NAME;
+//	private static String dbPath = "";
 
 	public static Connection getConn() throws SQLException{
 		if (null == conn || conn.isClosed()) {
@@ -32,7 +36,10 @@ public class SQLIteUtil {
 	static {
 		try {
 			Class.forName("org.sqlite.JDBC");
-			logger.info(dbPath);
+			String jarpath = JarUtil.getJarpath(SQLIteUtil.class);
+			//dbPath = jarpath + File.separator + Resources.DB_NAME;
+			logger.info("jar path:{}", jarpath);
+			logger.info("db location:{}", dbPath);
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "加载sqlite驱动失败，请检查！", "初始化错误！", JOptionPane.ERROR_MESSAGE);
