@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -104,6 +105,7 @@ public class MainWindow extends JFrame {
 	 * @throws WriterException
 	 */
 	public MainWindow() throws WriterException {
+		setIconImage(new ImageIcon(getClass().getResource("/icon.png")).getImage());
 		setTitle(Resources.FRM_TITLE);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
