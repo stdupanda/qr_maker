@@ -105,7 +105,7 @@ public class MainWindow extends JFrame {
 	 * @throws WriterException
 	 */
 	public MainWindow() throws WriterException {
-		setIconImage(new ImageIcon(getClass().getResource("/icon.png")).getImage());
+		setIconImage(new ImageIcon(getClass().getResource("/icon_red.png")).getImage());
 		setTitle(Resources.FRM_TITLE);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -268,6 +268,28 @@ public class MainWindow extends JFrame {
 		label_url.setBorder(new MyBorder(1, Color.BLUE));
 		label_url.setBounds(10, 368, 552, 29);
 		contentPane.add(label_url);
+		
+		JLabel label_about = new JLabel("关于");
+		label_about.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				toast("A simple swing tool for generating qrcode.");
+			}
+		});
+		label_about.setForeground(Color.BLUE);
+		label_about.setToolTipText("关于");
+		label_about.setBounds(479, 115, 54, 15);
+		contentPane.add(label_about);
 	}
 
 	/**
