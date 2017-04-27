@@ -58,11 +58,11 @@ public class MainWindow extends JFrame {
 	private JLabel label_url;
 
 	/**
-	 * {@value}
+	 * 二维码宽度 {@value}
 	 */
 	private static final int qrWidth = 240;
 	/**
-	 * {@value}
+	 * 二维码高度 {@value}
 	 */
 	private static final int qrheight = 240;
 
