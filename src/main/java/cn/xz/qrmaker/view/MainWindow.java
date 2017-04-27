@@ -1,6 +1,7 @@
 package cn.xz.qrmaker.view;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -37,7 +38,7 @@ import com.google.zxing.WriterException;
 import cn.xz.qrmaker.config.Resources;
 import cn.xz.qrmaker.dao.SQLIteUtil;
 import cn.xz.qrmaker.entity.UrlLog;
-import cn.xz.qrmaker.util.ZXingUtil;
+import cn.xz.qrmaker.util.MyZXingUtil;
 
 /**
  * 主窗口，swing 入口
@@ -56,8 +57,14 @@ public class MainWindow extends JFrame {
 	private JTextArea textArea;
 	private JLabel label_url;
 
-	private int qrWidth = 240;
-	private int qrheight = 240;
+	/**
+	 * {@value}
+	 */
+	private static final int qrWidth = 240;
+	/**
+	 * {@value}
+	 */
+	private static final int qrheight = 240;
 
 	private static String dbName = Resources.DB_NAME;
 
@@ -233,7 +240,7 @@ public class MainWindow extends JFrame {
 		// imagePanel.setBounds(10, 118, qrWidth, qrheight);
 		// contentPane.add(imagePanel);
 
-		JLabel label_clear_log = new JLabel("清除记录");
+		JLabel label_clear_log = new JLabel("<html><u>清除记录</u></html>");
 		label_clear_log.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -247,9 +254,14 @@ public class MainWindow extends JFrame {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				int ret = JOptionPane.showConfirmDialog(getParent(), "这将清空所有记录！确定继续吗？",
+						"请确认", JOptionPane.OK_CANCEL_OPTION);
+				if(ret != JOptionPane.OK_OPTION){
+					return;
+				}
 				try {
 					SQLIteUtil.clearDB();
-					toast("清除成功！");
+					toast(getParent(), "清除成功！");
 					resetCombo();
 				} catch (SQLException e1) {
 					JOptionPane.showMessageDialog(getParent(), "清除记录失败！" + e1.getMessage());
@@ -283,7 +295,7 @@ public class MainWindow extends JFrame {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				toast("A simple swing tool for generating qrcode.");
+				toast(getParent(), "A simple swing tool for generating qrcode.");
 			}
 		});
 		label_about.setForeground(Color.BLUE);
@@ -305,9 +317,9 @@ public class MainWindow extends JFrame {
 			public void run() {
 				Image image = null;
 				try {
-					image = ZXingUtil.getImage(url, qrWidth, qrheight, 0);
+					image = MyZXingUtil.getImage(url, qrWidth, qrheight, 0);
 				} catch (WriterException e) {
-					toast("生成二维码异常！" + e.getMessage());
+					toast(getParent(), "生成二维码异常！" + e.getMessage());
 					e.printStackTrace();
 				}
 				if (null != imagePanel) {
@@ -344,10 +356,12 @@ public class MainWindow extends JFrame {
 	 * 
 	 * @param msg
 	 */
-	private void toast(String msg) {
+	private void toast(Container container, String msg) {
 		JOptionPane op = new JOptionPane(msg, JOptionPane.INFORMATION_MESSAGE);
-		final JDialog dialog = op.createDialog(getParent(), "提示");
+		
+		final JDialog dialog = op.createDialog(container, "提示");
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setLocationRelativeTo(container);
 		dialog.setAlwaysOnTop(true);
 		dialog.setModal(false);
 		dialog.setVisible(true);
