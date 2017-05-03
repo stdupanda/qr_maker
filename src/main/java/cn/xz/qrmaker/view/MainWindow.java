@@ -131,6 +131,8 @@ public class MainWindow extends JFrame {
 		contentPane.add(label);
 
 		textArea = new JTextArea();
+		textArea.setFont(new Font("SimSun", Font.PLAIN, 13));
+		textArea.setBorder(new EmptyBorder(0, 3, 0, 3));
 		textArea.setWrapStyleWord(true);// 换行不断字
 		textArea.setLineWrap(true);// 换行
 		// textArea.setBounds(136, 10, 349, 60);
