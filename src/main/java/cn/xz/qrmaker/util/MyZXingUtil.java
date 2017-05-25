@@ -1,9 +1,6 @@
 package cn.xz.qrmaker.util;
 
 import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,13 +56,12 @@ public class MyZXingUtil {
 		hints.put(EncodeHintType.MARGIN, margin);
 		BitMatrix bitMatrix = multiFormatWriter.encode(url, BarcodeFormat.QR_CODE, width, height, hints);
 		bitMatrix = deleteWhite(bitMatrix);
-		try {
-			com.google.zxing.client.j2se.MatrixToImageWriter.writeToPath(
-					bitMatrix, "jpg", new File("g:/ILMerge/"+new Date().getTime()+".jpg").toPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			com.google.zxing.client.j2se.MatrixToImageWriter.writeToPath(
+//					bitMatrix, "jpg", new File("g:/ILMerge/"+new Date().getTime()+".jpg").toPath());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		return MatrixToImageWriter.toBufferedImage(bitMatrix);
 	}
 	
