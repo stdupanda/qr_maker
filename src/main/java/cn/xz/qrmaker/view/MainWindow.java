@@ -1,6 +1,7 @@
 package cn.xz.qrmaker.view;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.EventQueue;
@@ -21,10 +22,12 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -214,6 +217,25 @@ public class MainWindow extends JFrame {
 		contentPane.add(button);
 
 		comboBox = new JComboBox<UrlLog>();
+		// add tooltip for comboBox data
+		comboBox.setRenderer(new ListCellRenderer<UrlLog>() {
+
+			private ListCellRenderer<? super UrlLog> renderer = comboBox.getRenderer();
+
+			@Override
+			public Component getListCellRendererComponent(JList<? extends UrlLog> list, UrlLog value, int index,
+					boolean isSelected, boolean cellHasFocus) {
+				Component component = renderer.getListCellRendererComponent(list, value, index, isSelected,
+						cellHasFocus);
+
+				if (component instanceof JLabel) {
+					JLabel label = (JLabel) component;
+					label.setToolTipText(label.getText());
+				}
+				return component;
+			}
+
+		});
 		comboBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				logger.debug("{}", e.getStateChange());
@@ -256,9 +278,9 @@ public class MainWindow extends JFrame {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int ret = JOptionPane.showConfirmDialog(getParent(), "这将清空所有记录！确定继续吗？",
-						"请确认", JOptionPane.OK_CANCEL_OPTION);
-				if(ret != JOptionPane.OK_OPTION){
+				int ret = JOptionPane.showConfirmDialog(getParent(), "这将清空所有记录！确定继续吗？", "请确认",
+						JOptionPane.OK_CANCEL_OPTION);
+				if (ret != JOptionPane.OK_OPTION) {
 					return;
 				}
 				try {
@@ -282,7 +304,7 @@ public class MainWindow extends JFrame {
 		label_url.setBorder(new MyBorder(1, Color.BLUE));
 		label_url.setBounds(10, 368, 552, 29);
 		contentPane.add(label_url);
-		
+
 		JLabel label_about = new JLabel("关于");
 		label_about.addMouseListener(new MouseAdapter() {
 			@Override
@@ -360,7 +382,7 @@ public class MainWindow extends JFrame {
 	 */
 	private void toast(Container container, String msg) {
 		JOptionPane op = new JOptionPane(msg, JOptionPane.INFORMATION_MESSAGE);
-		
+
 		final JDialog dialog = op.createDialog(container, "提示");
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setLocationRelativeTo(container);
